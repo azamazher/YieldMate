@@ -1,0 +1,2 @@
+sh
+cd /Users/aazamazher/Development/projects/Fruit-Detection && flutter clean && flutter pub get && cd macos && rm -rf Pods Podfile.lock .symlinks && pod install --repo-update && cd .. && flutter run -d macos

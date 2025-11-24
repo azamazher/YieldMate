@@ -1,0 +1,65 @@
+name: fruits_detection
+description: "YieldMate - Smart Fruit Detection app using AI and YOLOv8 model."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # TensorFlow Lite
+  tflite_flutter: ^0.12.1
+
+  # Image picking and processing
+  image_picker: ^1.1.2
+  image: ^4.5.4
+
+  # UI icons
+  cupertino_icons: ^1.0.8
+  
+  # Storage for detection history
+  shared_preferences: ^2.2.2
+  
+  # Date formatting
+  intl: ^0.19.0
+  
+  # Network connectivity checking
+  connectivity_plus: ^6.0.5
+  
+  # HTTP requests for backend
+  http: ^1.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_native_splash: ^2.3.10
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/model.tflite
+    - assets/labels.txt
+    - assets/icon/splash_icon.png
+
+# Native splash screen configuration
+flutter_native_splash:
+  # Background color (black to match splash screen)
+  color: "#000000"
+  
+  # Splash icon image
+  image: assets/icon/splash_icon.png
+  
+  # Android configuration
+  android: true
+  
+  # iOS configuration
+  ios: true
+  
+  # Full screen mode
+  fullscreen: true
