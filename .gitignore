@@ -43,3 +43,35 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/.gradle/
+
+# Model files (too large for git)
+*.tflite
+*.pt
+*.pb
+*.h5
+*.pth
+*.onnx
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Backend server logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
