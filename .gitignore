@@ -52,6 +52,7 @@ app.*.map.json
 *.h5
 *.pth
 *.onnx
+*.gguf  # Phi-3 Mini model format
 
 # Python
 __pycache__/
