@@ -17,7 +17,7 @@ Before you begin, ensure you have the following installed:
 ### Step 1: Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://gitlab.com/azam.techofficial/yieldmate.git
 cd Fruit-Detection
 ```
 
@@ -174,6 +174,7 @@ The following files/folders are **NOT** included in the repository:
 - `assets/model.tflite` - **Required** - The trained model
 - `assets/labels.txt` - **Required** - Class labels
 - `assets/icon/splash_icon.png` - Optional - App icon
+- `assets/*.gguf` - **For AI Assistant** - Phi-3 Mini model (excluded from git)
 
 ### Python Cache:
 - `*.pyc` - Python bytecode
@@ -232,6 +233,7 @@ The following files/folders are **NOT** included in the repository:
 ## 📚 Documentation
 
 - [STRUCTURE.md](STRUCTURE.md) - Complete project structure and code documentation
+- [CHANGELOG.md](CHANGELOG.md) - Project development history and features
 - [scripts/README.md](scripts/README.md) - Development scripts documentation
 
 ## 🛠️ Development Scripts
@@ -240,6 +242,13 @@ Located in `scripts/` folder:
 - `add_image_android.sh` - Add test images to Android emulator
 - `run_android.sh` - Run app on Android emulator
 - `new.sh` - Clean and run on macOS
+
+## 🌿 Branch Structure
+
+- `main` - Production-ready, stable code
+- `dev/ai-assistant` - Development branch for AI assistant feature (Phi-3 Mini integration)
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed development history.
 
 ## 📝 License
 
@@ -252,3 +261,5 @@ Located in `scripts/` folder:
 ---
 
 **Note:** This project requires the trained model file (`assets/model.tflite`) which is not included in the repository. Contact the project maintainer to obtain the model file.
+
+**Repository:** https://gitlab.com/azam.techofficial/yieldmate
