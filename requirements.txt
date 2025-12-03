@@ -5,6 +5,13 @@ flask-cors==4.0.0
 # Ultralytics YOLO for fruit detection
 ultralytics==8.1.0
 
+# PyTorch (required by Ultralytics YOLO)
+torch>=2.0.0
+torchvision>=0.15.0
+
+# TensorFlow (required by Ultralytics to load TFLite models)
+tensorflow>=2.14.0
+
 # Image processing - Use latest stable version
 Pillow>=10.0.0
 
