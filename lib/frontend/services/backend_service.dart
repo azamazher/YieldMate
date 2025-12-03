@@ -8,23 +8,21 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class BackendDetectionService {
   final String serverUrl;
 
-  // Auto-detect the correct server URL based on platform
-  // For Android: Try 10.0.2.2 (emulator) first, fallback to physical device IP
-  // For iOS: Use localhost (works for simulator)
-  // For physical devices: You may need to set your computer's IP manually
+  // Simple server URL configuration
+  // Update this IP address to match your laptop's current IP address
+  // To find your IP: On Mac/Linux run: ifconfig | grep "inet " | grep -v 127.0.0.1
+  // To find your IP: On Windows run: ipconfig (look for IPv4 Address)
   static String get defaultServerUrl {
     if (kIsWeb) {
       return 'http://localhost:5000';
     } else if (Platform.isAndroid) {
-      // Android emulator uses 10.0.2.2 to access host machine's localhost
-      // For physical Android device, change this to your computer's IP:
-      // return 'http://192.168.1.192:5000'; // Replace with your IP
-      return 'http://10.0.2.2:5000';
+      // For Android Emulator: Use 10.0.2.2
+      // For Android Physical Device: Use your laptop's IP (e.g., 172.20.10.3)
+      return 'http://172.20.10.3:5000'; // UPDATE THIS with your laptop's IP
     } else if (Platform.isIOS) {
-      // iOS Simulator can use localhost
-      // For physical iOS device, use your computer's IP:
-      // return 'http://192.168.1.192:5000'; // Replace with your IP
-      return 'http://localhost:5000';
+      // For iOS Simulator: Use localhost
+      // For iOS Physical Device: Use your laptop's IP (e.g., 172.20.10.3)
+      return 'http://172.20.10.3:5000'; // UPDATE THIS with your laptop's IP
     } else {
       // Desktop platforms
       return 'http://localhost:5000';
@@ -84,23 +82,98 @@ class BackendDetectionService {
     }
   }
 
+  /// Detect fruits with tracking for live detection
+  Future<Map<String, dynamic>> detectFruitsLive(File imageFile) async {
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$serverUrl/detect_live'),
+      );
+
+      // Add image file
+      request.files.add(
+        await http.MultipartFile.fromPath('image', imageFile.path),
+      );
+
+      // Send request with timeout
+      var streamedResponse = await request.send().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('Request timeout - server may be unreachable');
+        },
+      );
+
+      var response = await http.Response.fromStream(streamedResponse);
+      var responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && responseData['success'] == true) {
+        // Format tracked objects
+        List<Map<String, dynamic>> trackedObjects = [];
+        for (var obj in responseData['tracked_objects']) {
+          final bbox = obj['bbox'] as List;
+          trackedObjects.add({
+            'id': obj['id'],
+            'class': obj['class'],
+            'bbox': bbox,
+            'rect': Rect.fromLTRB(
+              (bbox[0] as num).toDouble(), // x1
+              (bbox[1] as num).toDouble(), // y1
+              (bbox[2] as num).toDouble(), // x2
+              (bbox[3] as num).toDouble(), // y2
+            ),
+            'confidence': (obj['confidence'] as num).toDouble(),
+            'frames_seen': obj['frames_seen'],
+          });
+        }
+
+        return {
+          'tracked_objects': trackedObjects,
+          'total_count': responseData['total_count'] ?? 0,
+          'new_count_this_frame': responseData['new_count_this_frame'] ?? 0,
+          'active_objects': responseData['active_objects'] ?? 0,
+        };
+      } else {
+        throw Exception(responseData['error'] ?? 'Unknown error from server');
+      }
+    } catch (e) {
+      print('❌ Live detection error: $e');
+      rethrow;
+    }
+  }
+
+  /// Reset tracker for new counting session
+  Future<bool> resetTracker() async {
+    try {
+      var response = await http
+          .post(Uri.parse('$serverUrl/reset_tracker'))
+          .timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+        return responseData['success'] == true;
+      }
+      return false;
+    } catch (e) {
+      print('❌ Reset tracker error: $e');
+      return false;
+    }
+  }
+
   /// Check if server is reachable
   Future<bool> checkHealth() async {
     try {
       print('🔍 Checking server health at: $serverUrl/health');
-      var response = await http
-          .get(Uri.parse('$serverUrl/health'))
-          .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              print('⏱️ Health check timeout - server may be unreachable');
-              throw Exception('Connection timeout');
-            },
-          );
-      
+      var response = await http.get(Uri.parse('$serverUrl/health')).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          print('⏱️ Health check timeout - server may be unreachable');
+          throw Exception('Connection timeout');
+        },
+      );
+
       print('📊 Health check response: ${response.statusCode}');
       print('📄 Response body: ${response.body}');
-      
+
       if (response.statusCode == 200) {
         print('✅ Server is healthy');
         return true;

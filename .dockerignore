@@ -8,9 +8,6 @@ env/
 venv/
 ENV/
 .venv
-*.egg-info/
-dist/
-build/
 
 # Flutter/Dart
 .dart_tool/
@@ -32,17 +29,28 @@ build/
 .DS_Store
 Thumbs.db
 
-# Environment
-.env
-.env.local
+# Git
+.git/
+.gitignore
 
-# Docker
-*.log
+# Documentation
+*.md
+docs/
 
-# Keep assets for server deployment
-!assets/model.tflite
-!assets/labels.txt
+# Android/iOS
+android/
+ios/
+windows/
+linux/
+macos/
+web/
 
-# Exclude large model files that exceed Git limits
-assets/chatbot.onnx
-*.onnx
+# Build artifacts
+*.iml
+*.ipynb
+
+# Keep these for server
+# assets/model.tflite
+# assets/labels.txt
+# lib/backend/backend_server_example.py
+

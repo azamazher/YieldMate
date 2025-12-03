@@ -7,6 +7,7 @@ import '../widgets/splash_screen.dart';
 import '../pages/calendar_page.dart';
 import '../pages/fruit_doctor_page.dart';
 import '../pages/community_page.dart';
+import '../pages/live_detection_page.dart';
 import '../pages/about_page.dart';
 
 class MyApp extends StatefulWidget {
@@ -68,6 +69,7 @@ class _MyAppState extends State<MyApp> {
               onThemeToggle: _toggleTheme,
             ),
         '/calendar': (context) => const CalendarPage(),
+        '/live-detection': (context) => const LiveDetectionPage(),
         '/fruit-doctor': (context) => const FruitDoctorPage(),
         '/community': (context) => const CommunityPage(),
         '/about': (context) => const AboutPage(),

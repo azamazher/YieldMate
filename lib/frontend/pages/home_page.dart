@@ -17,6 +17,7 @@ import 'package:image/image.dart' as img;
 import '../widgets/bounding_box_painter.dart';
 import '../widgets/mode_toggle_button.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/ai_chat_widget.dart';
 
 // Services
 import '../services/model_service.dart';
@@ -65,6 +66,9 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isOnline = false;
   final BackendDetectionService _backendService = BackendDetectionService();
   final Connectivity _connectivity = Connectivity();
+
+  // AI Chat state
+  bool _isChatOpen = false;
 
   // Fruit color mapping for UI display
   final Map<String, Color> _fruitColors = {
@@ -453,83 +457,98 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       drawer: AppDrawer(currentRoute: currentRoute),
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text(""),
         centerTitle: true,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-            tooltip: 'Menu',
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(_getThemeIcon()),
-            onPressed: () {
-              widget.onThemeToggle(_getNextThemeMode());
-              // Force rebuild to update icon
-              setState(() {});
-            },
-            tooltip: 'Toggle theme',
-          ),
-        ],
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "AI-Powered Image Recognition",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+        leading: _isChatOpen
+            ? null // Hide menu button when chat is open
+            : Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                  tooltip: 'Menu',
                 ),
               ),
-              const SizedBox(height: 20),
-              if (!_modelLoaded)
-                Column(
-                  children: [
-                    const Text(
-                      "Loading model, please wait...",
-                      style: TextStyle(color: Colors.redAccent, fontSize: 14),
-                    ),
-                    if (_modelLoadError != null) ...[
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          _modelLoadError!,
-                          style: const TextStyle(
-                            color: Colors.orange,
-                            fontSize: 12,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
-                  ],
-                )
-              else if (_appState != AppState.detecting)
-                // Mode toggle button in the center (only show when model is loaded and not detecting)
-                Center(
-                  child: ModeToggleButton(
-                    isOnlineMode: _useOnlineMode,
-                    canUseOnline: _isOnline,
-                    onTap: () {
-                      _saveDetectionMode(!_useOnlineMode);
-                    },
+        actions: _isChatOpen
+            ? [] // Hide theme toggle when chat is open
+            : [
+                IconButton(
+                  icon: Icon(_getThemeIcon()),
+                  onPressed: () {
+                    widget.onThemeToggle(_getNextThemeMode());
+                    // Force rebuild to update icon
+                    setState(() {});
+                  },
+                  tooltip: 'Toggle theme',
+                ),
+              ],
+      ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 82, 24, 100),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "AI-Powered Image Recognition",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
                   ),
                 ),
-              const SizedBox(height: 20),
-              _buildCurrentStateWidget(),
-            ],
+                const SizedBox(height: 20),
+                if (!_modelLoaded)
+                  Column(
+                    children: [
+                      const Text(
+                        "Loading model, please wait...",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 14),
+                      ),
+                      if (_modelLoadError != null) ...[
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            _modelLoadError!,
+                            style: const TextStyle(
+                              color: Colors.orange,
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ],
+                  )
+                else if (_appState != AppState.detecting)
+                  // Mode toggle button in the center (only show when model is loaded and not detecting)
+                  Center(
+                    child: ModeToggleButton(
+                      isOnlineMode: _useOnlineMode,
+                      canUseOnline: _isOnline,
+                      onTap: () {
+                        _saveDetectionMode(!_useOnlineMode);
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 20),
+                _buildCurrentStateWidget(),
+              ],
+            ),
           ),
-        ),
+          // AI Chat Widget (combined button and popup)
+          AIChatWidget(
+            onChatStateChanged: (isOpen) {
+              setState(() {
+                _isChatOpen = isOpen;
+              });
+            },
+          ),
+        ],
       ),
     );
   }
@@ -590,14 +609,122 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        const SizedBox(height: 30),
-        _buildGreenButton("Capture Photo", () => _getImage(ImageSource.camera),
-            icon: Icons.camera_alt),
-        const SizedBox(height: 16),
-        _buildGreyButton(
-            "Choose from Gallery", () => _getImage(ImageSource.gallery),
-            icon: Icons.photo_library),
+        const SizedBox(height: 32),
+        // Modern side-by-side action cards
+        Row(
+          children: [
+            Expanded(
+              child: _buildModernActionCard(
+                title: "Capture",
+                subtitle: "Take Photo",
+                icon: Icons.camera_alt_rounded,
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF4CAF50),
+                    Color(0xFF45A049),
+                  ],
+                ),
+                onTap: () => _getImage(ImageSource.camera),
+                isDark: isDark,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildModernActionCard(
+                title: "Gallery",
+                subtitle: "Choose Image",
+                icon: Icons.photo_library_rounded,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isDark
+                      ? [
+                          const Color(0xFF6C757D),
+                          const Color(0xFF5A6268),
+                        ]
+                      : [
+                          const Color(0xFF9E9E9E),
+                          const Color(0xFF757575),
+                        ],
+                ),
+                onTap: () => _getImage(ImageSource.gallery),
+                isDark: isDark,
+              ),
+            ),
+          ],
+        ),
       ],
+    );
+  }
+
+  // Modern action card with gradient and modern styling
+  Widget _buildModernActionCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Gradient gradient,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: gradient,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: gradient.colors[0].withOpacity(0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  size: 32,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white.withOpacity(0.9),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

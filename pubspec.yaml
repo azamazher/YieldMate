@@ -32,6 +32,9 @@ dependencies:
   
   # HTTP requests for backend
   http: ^1.2.2
+  
+  # Camera for live detection
+  camera: ^0.10.5+9
 
 dev_dependencies:
   flutter_test:
