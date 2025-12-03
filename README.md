@@ -89,7 +89,39 @@ flutter run
 
 The backend server is required for online detection mode. It uses Ultralytics YOLO to process images.
 
-### Start the Server
+### Option 1: Render Cloud Server (Production - Main Branch)
+
+The **main branch** is configured to use the Render cloud server for production deployment.
+
+#### Server Configuration:
+- **Server URL**: `https://yieldmate-api.onrender.com`
+- **Status**: Deployed on Render cloud platform
+- **Configuration**: Located in `lib/frontend/services/backend_service.dart`
+
+#### Render Server Features:
+- ✅ **Automatic retry logic** for server wake-up (free tier sleeps after 15 min)
+- ✅ **Extended timeouts** (180 seconds) to handle model loading
+- ✅ **502 error handling** with automatic retries
+- ✅ **Health check** endpoint for server status
+
+#### Render Free Tier Limitations:
+- ⏱️ **Wake-up time**: 60-120 seconds after 15 minutes of inactivity
+- 📦 **Model loading**: 30-60 seconds to load TensorFlow/PyTorch models
+- 🔄 **First request**: May take 90-180 seconds total on first wake-up
+- 💾 **Memory constraints**: Limited to 1 worker to prevent OOM errors
+
+#### Using Render Server:
+The app automatically connects to the Render server when using the main branch. No local server setup required.
+
+**Note**: For faster development, switch to the `localhost-server` branch (see below).
+
+---
+
+### Option 2: Local Development Server (Localhost-Server Branch)
+
+For local development with faster response times, use the `localhost-server` branch.
+
+#### Start the Local Server
 
 ```bash
 ./lib/backend/start_server.sh
@@ -107,14 +139,25 @@ The server will:
 - Provide endpoints:
   - `GET /health` - Health check
   - `POST /detect` - Fruit detection
+  - `POST /detect_live` - Live detection with tracking
+  - `POST /reset_tracker` - Reset object tracking counter
+  - `GET /tracker_status` - Get tracker status
 
-### Stop the Server
+#### Stop the Server
 
 Press `Ctrl+C` in the terminal, or:
 
 ```bash
 ./lib/backend/stop_server.sh
 ```
+
+#### Switch to Localhost Branch:
+
+```bash
+git checkout localhost-server
+```
+
+See branch structure section below for more details.
 
 ## 📱 App Modes
 
@@ -214,9 +257,20 @@ The following files/folders are **NOT** included in the repository:
 
 **Problem:** Can't connect to server from app
 - **Solution:** 
-  - For Android Emulator: Use `http://10.0.2.2:5000`
-  - For iOS Simulator: Use `http://localhost:5000`
-  - For Physical Devices: Use your computer's IP address (e.g., `http://192.168.1.XXX:5000`)
+  - **Render Server (main branch)**: Ensure you're on `main` branch and server URL is `https://yieldmate-api.onrender.com`
+  - **Local Server (localhost-server branch)**: 
+    - For Android Emulator: Use `http://10.0.2.2:5000`
+    - For iOS Simulator: Use `http://localhost:5000`
+    - For Physical Devices: Use your computer's IP address (e.g., `http://172.20.10.3:5000`)
+    - Update IP in `lib/frontend/services/backend_service.dart`
+
+**Problem:** Render server timeout or 502 errors
+- **Solution:** 
+  - This is normal for Render free tier - server sleeps after 15 minutes
+  - First request after sleep takes 60-120 seconds (wake-up + model loading)
+  - The app automatically retries with extended timeouts
+  - Wait 90-180 seconds on first request after inactivity
+  - For faster development, use `localhost-server` branch instead
 
 ### Platform-Specific Issues
 
@@ -245,8 +299,31 @@ Located in `scripts/` folder:
 
 ## 🌿 Branch Structure
 
-- `main` - Production-ready, stable code
+- `main` - **Production branch** - Uses Render cloud server (`https://yieldmate-api.onrender.com`)
+  - Configured for production deployment
+  - Includes automatic retry logic for Render free tier limitations
+  - Extended timeouts for server wake-up and model loading
+  - Best for: Production deployment, testing with cloud server
+
+- `localhost-server` - **Development branch** - Uses local server (`http://localhost:5000` or custom IP)
+  - Configured for local development with faster response times
+  - Shorter retry delays (optimized for local network)
+  - Requires local Flask server to be running
+  - Best for: Fast local development and testing
+
 - `dev/ai-assistant` - Development branch for AI assistant feature (Phi-3 Mini integration)
+
+**Switching Branches:**
+
+```bash
+# Use Render server (production)
+git checkout main
+
+# Use localhost server (development)
+git checkout localhost-server
+```
+
+**Note**: After switching branches, update the server IP in `lib/frontend/services/backend_service.dart` if needed (for localhost-server branch).
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed development history.
 
