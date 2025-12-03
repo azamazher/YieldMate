@@ -5,8 +5,8 @@ flask-cors==4.0.0
 # Ultralytics YOLO for fruit detection
 ultralytics==8.1.0
 
-# Image processing
-Pillow==10.3.0
+# Image processing - Use latest stable version
+   Pillow>=10.0.0
 
 # HTTP requests for health check (optional)
 requests==2.31.0
