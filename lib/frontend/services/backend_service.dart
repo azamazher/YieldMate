@@ -8,25 +8,11 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class BackendDetectionService {
   final String serverUrl;
 
-  // Simple server URL configuration
-  // Update this IP address to match your laptop's current IP address
-  // To find your IP: On Mac/Linux run: ifconfig | grep "inet " | grep -v 127.0.0.1
-  // To find your IP: On Windows run: ipconfig (look for IPv4 Address)
+  // Render server URL - deployed on Render cloud platform
+  // Service URL: https://yieldmate-api.onrender.com
   static String get defaultServerUrl {
-    if (kIsWeb) {
-      return 'http://localhost:5000';
-    } else if (Platform.isAndroid) {
-      // For Android Emulator: Use 10.0.2.2
-      // For Android Physical Device: Use your laptop's IP (e.g., 172.20.10.3)
-      return 'http://172.20.10.3:5000'; // UPDATE THIS with your laptop's IP
-    } else if (Platform.isIOS) {
-      // For iOS Simulator: Use localhost
-      // For iOS Physical Device: Use your laptop's IP (e.g., 172.20.10.3)
-      return 'http://172.20.10.3:5000'; // UPDATE THIS with your laptop's IP
-    } else {
-      // Desktop platforms
-      return 'http://localhost:5000';
-    }
+    // Use Render URL for all platforms
+    return 'https://yieldmate-api.onrender.com';
   }
 
   BackendDetectionService({String? serverUrl})
