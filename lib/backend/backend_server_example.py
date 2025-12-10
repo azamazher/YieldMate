@@ -24,16 +24,15 @@ CORS(app)  # Allow Flutter app to call this
 import os
 
 # Get project root directory
-# In Docker: /app
 # Local dev: two levels up from lib/backend/
 if os.path.exists('/app/assets/model.tflite'):
     # Docker environment
     project_root = '/app'
-    print("🐳 Running in Docker environment")
+    print("Running in Docker environment")
 else:
     # Local development
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    print("💻 Running in local development environment")
+    print("Running in local development environment")
 
 model_path = os.path.join(project_root, 'assets', 'model.tflite')
 if not os.path.exists(model_path):
@@ -41,12 +40,12 @@ if not os.path.exists(model_path):
     fallback_path = os.path.join(project_root, 'runs', 'multi_fruit_model', 'weights', 'best_saved_model', 'best_float32.tflite')
     if os.path.exists(fallback_path):
         model_path = fallback_path
-        print(f"⚠️ Using fallback model: {model_path}")
+        print(f"Using fallback model: {model_path}")
     else:
-        print(f"❌ Model not found! Expected: {os.path.join(project_root, 'assets', 'model.tflite')}")
+        print(f"Model not found! Expected: {os.path.join(project_root, 'assets', 'model.tflite')}")
         raise FileNotFoundError("TFLite model not found. Please ensure assets/model.tflite exists.")
 else:
-    print(f"✅ Using model: {model_path}")
+    print(f"Using model: {model_path}")
 
 model = YOLO(model_path)
 
@@ -57,10 +56,10 @@ def load_class_names():
     try:
         with open(labels_path, 'r') as f:
             class_names = [line.strip() for line in f if line.strip()]
-        print(f"✅ Loaded {len(class_names)} class names from {labels_path}")
+        print(f"Loaded {len(class_names)} class names from {labels_path}")
         return class_names
     except FileNotFoundError:
-        print(f"⚠️ labels.txt not found, using model.names")
+        print(f"labels.txt not found, using model.names")
         # Fallback to model names if labels.txt not found
         return [model.names.get(i, f'class{i}') for i in range(len(model.names))]
 
@@ -327,7 +326,7 @@ def detect_live():
         })
         
     except Exception as e:
-        print(f"❌ Error in detect_live: {e}")
+        print(f"Error in detect_live: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -339,7 +338,7 @@ def reset_tracker():
         global tracker
         old_count = tracker.get_total_count()
         tracker.reset()
-        print(f"🔄 Tracker reset. Previous count: {old_count}")
+        print(f"Tracker reset. Previous count: {old_count}")
         return jsonify({
             'success': True,
             'previous_count': old_count,

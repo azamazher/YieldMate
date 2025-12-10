@@ -14,8 +14,8 @@ class BackendDetectionService {
     // For local development - update IP to your laptop's IP address
     // For Android Emulator: Use http://10.0.2.2:5000
     // For iOS Simulator: Use http://localhost:5000
-    // For Physical Device: Use your laptop IP (e.g., http://172.20.10.3:5000)
-    return 'http://172.20.10.3:5000'; // Update this to your laptop IP
+    // For Physical Device: Use your laptop IP (e.g. find it using "ipconfig getifaddr en0" in terminal)
+    return 'http://10.200.17.16:5000'; // Update this to your laptop IP
   }
 
   BackendDetectionService({String? serverUrl})
@@ -91,12 +91,12 @@ class BackendDetectionService {
         // If it's not a 502 and we haven't retried yet, check if we should retry
         final errorStr = e.toString();
         if (!errorStr.contains('502') && retryCount == 0) {
-          print('❌ Backend detection error: $e');
+          print('Backend detection error: $e');
           rethrow;
         }
         // If we've exhausted retries, throw
         if (retryCount >= maxRetries - 1) {
-          print('❌ Backend detection error after $maxRetries attempts: $e');
+          print('Backend detection error after $maxRetries attempts: $e');
           rethrow;
         }
         // For 502 errors or timeout, continue to retry
@@ -104,12 +104,12 @@ class BackendDetectionService {
           retryCount++;
           if (retryCount < maxRetries) {
             print(
-                '⏳ Waiting ${retryDelay}s before retry ($retryCount/$maxRetries)...');
+                'Waiting ${retryDelay}s before retry ($retryCount/$maxRetries)...');
             await Future.delayed(Duration(seconds: retryDelay));
           }
         } else {
           // Other errors - don't retry
-          print('❌ Backend detection error: $e');
+          print('Backend detection error: $e');
           rethrow;
         }
       }
@@ -152,7 +152,7 @@ class BackendDetectionService {
           retryCount++;
           if (retryCount < maxRetries) {
             print(
-                '⚠️ Server returned 502 (models loading). Retrying in ${retryDelay}s... (Attempt $retryCount/$maxRetries)');
+                'Server returned 502 (models loading). Retrying in ${retryDelay}s... (Attempt $retryCount/$maxRetries)');
             await Future.delayed(Duration(seconds: retryDelay));
             continue; // Retry the request
           } else {
@@ -198,12 +198,12 @@ class BackendDetectionService {
         if (!errorStr.contains('502') &&
             !errorStr.contains('timeout') &&
             retryCount == 0) {
-          print('❌ Live detection error: $e');
+          print('Live detection error: $e');
           rethrow;
         }
         // If we've exhausted retries, throw
         if (retryCount >= maxRetries - 1) {
-          print('❌ Live detection error after $maxRetries attempts: $e');
+          print('Live detection error after $maxRetries attempts: $e');
           rethrow;
         }
         // For 502 errors or timeout, continue to retry
@@ -211,12 +211,12 @@ class BackendDetectionService {
           retryCount++;
           if (retryCount < maxRetries) {
             print(
-                '⏳ Waiting ${retryDelay}s before retry ($retryCount/$maxRetries)...');
+                'Waiting ${retryDelay}s before retry ($retryCount/$maxRetries)...');
             await Future.delayed(Duration(seconds: retryDelay));
           }
         } else {
           // Other errors - don't retry
-          print('❌ Live detection error: $e');
+          print('Live detection error: $e');
           rethrow;
         }
       }
@@ -238,7 +238,7 @@ class BackendDetectionService {
       }
       return false;
     } catch (e) {
-      print('❌ Reset tracker error: $e');
+      print('Reset tracker error: $e');
       return false;
     }
   }
@@ -250,8 +250,7 @@ class BackendDetectionService {
       var response = await http.get(Uri.parse('$serverUrl/health')).timeout(
         const Duration(seconds: 10),
         onTimeout: () {
-          print(
-              '⏱️ Health check timeout - local server may not be running');
+          print('⏱️ Health check timeout - local server may not be running');
           throw Exception(
               'Connection timeout - make sure Flask server is running on localhost:5000');
         },
@@ -288,7 +287,8 @@ class BackendDetectionService {
     } catch (e) {
       print('❌ Server health check failed: $e');
       print('💡 Server URL: $serverUrl');
-      print('💡 Start local server: python3 lib/backend/backend_server_example.py');
+      print(
+          '💡 Start local server: python3 lib/backend/backend_server_example.py');
       print('💡 Or use start script: ./lib/backend/start_server.sh');
       return false;
     }

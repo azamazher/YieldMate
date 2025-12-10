@@ -41,18 +41,18 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
   bool _isInitialized = false;
   bool _isDetecting = false;
   bool _isPaused = false;
-  
+
   Map<int, TrackedFruit> _trackedFruits = {};
   int _totalCount = 0;
   int _activeObjects = 0;
-  
+
   Timer? _detectionTimer;
   final BackendDetectionService _backendService = BackendDetectionService();
-  
+
   // Image dimensions from last detection
   double _imageWidth = 640.0;
   double _imageHeight = 480.0;
-  
+
   // Error handling
   String? _errorMessage;
   bool _hasError = false;
@@ -83,6 +83,9 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
 
       await _controller!.initialize();
 
+      // Disable flash to prevent flashing during continuous detection
+      await _controller!.setFlashMode(FlashMode.off);
+
       if (!mounted) return;
 
       setState(() {
@@ -94,7 +97,8 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
       if (!isHealthy) {
         setState(() {
           _hasError = true;
-          _errorMessage = 'Cannot connect to detection server. Please ensure the server is running.';
+          _errorMessage =
+              'Cannot connect to detection server. Please ensure the server is running.';
         });
         return;
       }
@@ -111,9 +115,13 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
 
   void _startDetection() {
     if (_isPaused) return;
-    
-    _detectionTimer = Timer.periodic(const Duration(milliseconds: 300), (timer) async {
-      if (!_isDetecting && !_isPaused && _controller != null && _controller!.value.isInitialized) {
+
+    _detectionTimer =
+        Timer.periodic(const Duration(milliseconds: 300), (timer) async {
+      if (!_isDetecting &&
+          !_isPaused &&
+          _controller != null &&
+          _controller!.value.isInitialized) {
         await _detectFruits();
       }
     });
@@ -125,7 +133,8 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
   }
 
   Future<void> _detectFruits() async {
-    if (!mounted || _controller == null || !_controller!.value.isInitialized) return;
+    if (!mounted || _controller == null || !_controller!.value.isInitialized)
+      return;
     if (_isDetecting || _isPaused) return;
 
     setState(() {
@@ -135,9 +144,9 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
     });
 
     try {
-      // Take picture
+      // Take picture (flash is already disabled during initialization)
       final image = await _controller!.takePicture();
-      
+
       // Send to server for detection with tracking
       final result = await _backendService.detectFruitsLive(File(image.path));
 
@@ -154,13 +163,13 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
         for (var obj in trackedList) {
           final id = obj['id'] as int;
           final bbox = obj['bbox'] as List;
-          
+
           // Update image dimensions from bbox if available
           if (bbox.length >= 4) {
             _imageWidth = (bbox[2] as num).toDouble(); // x2
             _imageHeight = (bbox[3] as num).toDouble(); // y2
           }
-          
+
           _trackedFruits[id] = TrackedFruit(
             id: id,
             className: obj['class'],
@@ -176,7 +185,7 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
       await File(image.path).delete();
     } catch (e) {
       if (!mounted) return;
-      
+
       setState(() {
         _hasError = true;
         _errorMessage = 'Detection error: ${e.toString()}';
@@ -198,7 +207,7 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
         _totalCount = 0;
         _activeObjects = 0;
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -225,7 +234,7 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
     setState(() {
       _isPaused = !_isPaused;
     });
-    
+
     if (_isPaused) {
       _stopDetection();
     } else {
@@ -241,13 +250,15 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
     // Check server health
     try {
       isHealthy = await _backendService.checkHealth();
-      
+
       // Try to get tracker status
       try {
-        final response = await http.get(
-          Uri.parse('${_backendService.serverUrl}/tracker_status'),
-        ).timeout(const Duration(seconds: 3));
-        
+        final response = await http
+            .get(
+              Uri.parse('${_backendService.serverUrl}/tracker_status'),
+            )
+            .timeout(const Duration(seconds: 3));
+
         if (response.statusCode == 200) {
           trackerStatus = jsonDecode(response.body);
         }
@@ -296,7 +307,7 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
               _buildInfoRow(
                 context,
                 'Connection:',
-                isHealthy ? 'Connected ✅' : 'Disconnected ❌',
+                isHealthy ? 'Connected' : 'Disconnected',
                 isDark: isDark,
                 valueColor: isHealthy ? Colors.green : Colors.red,
               ),
@@ -346,7 +357,7 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
               _buildInfoRow(
                 context,
                 'Camera:',
-                _isInitialized ? 'Initialized ✅' : 'Not Initialized ❌',
+                _isInitialized ? 'Initialized ' : 'Not Initialized',
                 isDark: isDark,
                 valueColor: _isInitialized ? Colors.green : Colors.red,
               ),
@@ -355,10 +366,10 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
                 context,
                 'Detection:',
                 _isPaused
-                    ? 'Paused ⏸️'
+                    ? 'Paused'
                     : _isDetecting
-                        ? 'Detecting... 🔄'
-                        : 'Active ✅',
+                        ? 'Detecting...'
+                        : 'Active',
                 isDark: isDark,
                 valueColor: _isPaused
                     ? Colors.orange
@@ -418,7 +429,8 @@ class _LiveDetectionPageState extends State<LiveDetectionPage> {
                 fontSize: 14,
                 color: valueColor ?? (isDark ? Colors.white : Colors.black87),
                 fontFamily: 'monospace',
-                fontWeight: valueColor != null ? FontWeight.w600 : FontWeight.normal,
+                fontWeight:
+                    valueColor != null ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
           ),
