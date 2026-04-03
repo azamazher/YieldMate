@@ -1,0 +1,46 @@
+paths:
+  model_tflite: assets/model.tflite
+  labels: assets/labels.txt
+  test_images: test_images/
+  traces_dir: traces/
+  results_dir: results/
+model:
+  input_size: 640
+  num_classes: 8
+  class_names:
+  - apple
+  - watermelon
+  - mango
+  - strawberry
+  - banana
+  - orange
+  - pineapple
+  - grape
+online:
+  confidence_threshold: 0.25
+  iou_threshold: 0.45
+offline:
+  normalization: divide_255
+  resize_method: bilinear
+  channel_order: rgb
+  letterbox_padding: true
+  padding_color:
+  - 114
+  - 114
+  - 114
+  confidence_threshold: 0.6
+  iou_threshold: 0.45
+  apply_sigmoid: false
+parity_loss:
+  weights:
+    tensor_l2: 1.0
+    logits_diff: 1.0
+    iou_mismatch: 1.0
+    count_diff: 0.5
+    confidence_kl: 0.5
+  threshold: 0.05
+agent:
+  max_iterations: 20
+  patience: 2
+  max_ablation_images: 5
+  log_level: INFO
