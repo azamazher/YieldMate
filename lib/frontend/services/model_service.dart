@@ -21,29 +21,29 @@ class ModelService {
     try {
       // Try loading model with full asset path first
       try {
-        print("📂 Attempting to load: assets/model.tflite");
+        print("Attempting to load: assets/model.tflite");
         interpreter = await Interpreter.fromAsset('assets/model.tflite');
-        print("✅ Model loaded successfully from assets/model.tflite");
+        print("Model loaded successfully from assets/model.tflite");
       } catch (e, stackTrace) {
-        print("⚠️ First attempt failed: $e");
-        print("📋 Stack trace: $stackTrace");
+        print("First attempt failed: $e");
+        print("Stack trace: $stackTrace");
 
         // Fallback: try without assets/ prefix
         try {
-          print("📂 Trying alternative path: model.tflite");
+          print("Trying alternative path: model.tflite");
           interpreter = await Interpreter.fromAsset('model.tflite');
-          print("✅ Model loaded successfully from model.tflite");
+          print("Model loaded successfully from model.tflite");
         } catch (e2, stackTrace2) {
-          print("❌ Both paths failed!");
-          print("❌ Error 1: $e");
-          print("❌ Error 2: $e2");
-          print("❌ Stack trace 2: $stackTrace2");
+          print("Both paths failed!");
+          print("Error 1: $e");
+          print("Error 2: $e2");
+          print("Stack trace 2: $stackTrace2");
 
           if (Platform.isMacOS) {
             print(
-                "⚠️ macOS detected - tflite_flutter may have limited macOS support");
+                "macOS detected - tflite_flutter may have limited macOS support");
             print(
-                "💡 Consider using Android/iOS for full TensorFlow Lite functionality");
+                "Consider using Android/iOS for full TensorFlow Lite functionality");
           }
 
           rethrow;
@@ -52,7 +52,7 @@ class ModelService {
 
       // Check if widget is still mounted before using context
       if (!context.mounted) {
-        print("⚠️ Widget unmounted during model loading");
+        print("Widget unmounted during model loading");
         return {
           'interpreter': null,
           'labels': [],
@@ -61,13 +61,13 @@ class ModelService {
         };
       }
 
-      print("📝 Loading labels...");
+      print("Loading labels...");
       final labelData =
           await DefaultAssetBundle.of(context).loadString('assets/labels.txt');
       labels =
           labelData.split('\n').where((label) => label.isNotEmpty).toList();
-      print("✅ Labels loaded successfully: ${labels.length} classes");
-      print("📋 Labels: $labels");
+      print("Labels loaded successfully: ${labels.length} classes");
+      print("Labels: $labels");
 
       modelLoaded = true;
 
@@ -78,10 +78,10 @@ class ModelService {
         'error': null,
       };
     } catch (e, stackTrace) {
-      print("❌ CRITICAL ERROR loading model or labels: $e");
-      print("❌ Full stack trace: $stackTrace");
-      print("❌ Platform: ${Platform.operatingSystem}");
-      print("❌ OS Version: ${Platform.operatingSystemVersion}");
+      print("CRITICAL ERROR loading model or labels: $e");
+      print("Full stack trace: $stackTrace");
+      print("Platform: ${Platform.operatingSystem}");
+      print("OS Version: ${Platform.operatingSystemVersion}");
 
       String errorMessage = "Failed to load model";
       if (Platform.isMacOS) {
@@ -109,56 +109,56 @@ class ModelService {
     final inputSize = params['inputSize'] as int;
 
     try {
-      print("🔄 Loading model from bytes (${modelBytes.length} bytes)");
+      print("Loading model from bytes (${modelBytes.length} bytes)");
       final interpreter = Interpreter.fromBuffer(modelBytes);
-      print("✅ Model loaded successfully");
+      print("Model loaded successfully");
 
       // Check model input/output shapes
       final inputTensors = interpreter.getInputTensors();
       final outputTensors = interpreter.getOutputTensors();
-      print("📊 Input tensors: ${inputTensors.length}");
+      print("Input tensors: ${inputTensors.length}");
       for (var tensor in inputTensors) {
         print("   Input shape: ${tensor.shape}, type: ${tensor.type}");
       }
-      print("📊 Output tensors: ${outputTensors.length}");
+      print("Output tensors: ${outputTensors.length}");
       for (var tensor in outputTensors) {
         print("   Output shape: ${tensor.shape}, type: ${tensor.type}");
       }
 
       // Load and process image
-      print("🖼️ Loading image from: $imagePath");
+      print("Loading image from: $imagePath");
       final imageFile = File(imagePath);
       if (!await imageFile.exists()) {
         throw Exception("Image file does not exist: $imagePath");
       }
 
       final imageBytes = await imageFile.readAsBytes();
-      print("✅ Image loaded: ${imageBytes.length} bytes");
+      print("Image loaded: ${imageBytes.length} bytes");
 
       final decodedImage = img.decodeImage(imageBytes);
       if (decodedImage == null) throw Exception("Cannot decode image");
 
       final imageWidth = decodedImage.width.toDouble();
       final imageHeight = decodedImage.height.toDouble();
-      print("📐 Image dimensions: ${imageWidth}x${imageHeight}");
+      print("Image dimensions: ${imageWidth}x${imageHeight}");
 
       // Get actual model input shape
       final inputShape = inputTensors[0].shape;
-      print("🔄 Model expects input shape: $inputShape");
+      print("Model expects input shape: $inputShape");
 
       final modelInputHeight = inputShape[1];
       final modelInputSize = modelInputHeight;
 
-      print("📐 Model input size: ${modelInputSize}x${modelInputSize}");
-      print("📐 Code parameter was: ${inputSize}x${inputSize}");
+      print("Model input size: ${modelInputSize}x${modelInputSize}");
+      print("Code parameter was: ${inputSize}x${inputSize}");
 
       // Resize image to match model's expected input size
       print(
-          "🔄 Resizing image to ${modelInputSize}x${modelInputSize} (model's expected size)");
+          "Resizing image to ${modelInputSize}x${modelInputSize} (model's expected size)");
       final resized = img.copyResize(decodedImage,
           width: modelInputSize, height: modelInputSize);
 
-      print("🔄 Converting to float array...");
+      print("Converting to float array...");
       final floatBytes = Float32List(1 * modelInputSize * modelInputSize * 3);
       int bufferIndex = 0;
       for (var y = 0; y < modelInputSize; y++) {
@@ -176,15 +176,15 @@ class ModelService {
 
       // Use actual model output shape
       final outputShape = outputTensors[0].shape;
-      print("🔄 Creating output tensor with shape: $outputShape");
+      print("Creating output tensor with shape: $outputShape");
       final output = List.filled(outputShape.reduce((a, b) => a * b), 0.0)
           .reshape(outputShape);
 
-      print("🚀 Running inference...");
+      print("Running inference...");
       interpreter.run(input, output);
-      print("✅ Inference completed");
+      print("Inference completed");
 
-      print("🔄 Processing output...");
+      print("Processing output...");
 
       // Handle different output formats - convert dynamic to typed
       List<List<List<double>>> typedOutput;
@@ -225,7 +225,7 @@ class ModelService {
             "   Output format: 2D List<double> (${output.length} x ${output[0].length})");
         typedOutput = [output];
       } else {
-        print("⚠️ Unknown output format: ${output.runtimeType}");
+        print("Unknown output format: ${output.runtimeType}");
         throw Exception(
             "Unexpected output format. Expected List<List<List<double>>>, got ${output.runtimeType}");
       }
@@ -240,7 +240,7 @@ class ModelService {
         iouThreshold: 0.45,
       );
 
-      print("✅ Found ${recognitions.length} detections");
+      print("Found ${recognitions.length} detections");
 
       return {
         'recognitions': recognitions,
@@ -248,8 +248,8 @@ class ModelService {
         'imageHeight': imageHeight,
       };
     } catch (e, stackTrace) {
-      print("❌ Error in isolate: $e");
-      print("❌ Stack trace: $stackTrace");
+      print("Error in isolate: $e");
+      print("Stack trace: $stackTrace");
       rethrow;
     }
   }

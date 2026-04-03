@@ -101,8 +101,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                   child: Opacity(
                     opacity: _headerFadeAnimation.value,
                     child: Container(
-                      constraints:
-                          const BoxConstraints(minHeight: 180, maxHeight: 200),
+                      constraints: const BoxConstraints(minHeight: 180),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
@@ -115,7 +114,8 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF8B5CF6).withOpacity(0.4),
+                            color:
+                                const Color(0xFF8B5CF6).withValues(alpha: 0.4),
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                             spreadRadius: 2,
@@ -132,9 +132,9 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                   begin: Alignment.topRight,
                                   end: Alignment.bottomLeft,
                                   colors: [
-                                    Colors.white.withOpacity(0.1),
+                                    Colors.white.withValues(alpha: 0.1),
                                     Colors.transparent,
-                                    Colors.black.withOpacity(0.1),
+                                    Colors.black.withValues(alpha: 0.1),
                                   ],
                                 ),
                               ),
@@ -153,7 +153,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                           SafeArea(
                             child: Padding(
                               padding:
-                                  const EdgeInsets.fromLTRB(24, 40, 24, 18),
+                                  const EdgeInsets.fromLTRB(24, 32, 24, 16),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -167,7 +167,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                       Text(
                                         'Y',
                                         style: TextStyle(
-                                          fontSize: 42,
+                                          fontSize: 40,
                                           fontWeight: FontWeight.w900,
                                           height: 0.9,
                                           foreground: Paint()
@@ -181,14 +181,14 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                             ),
                                           shadows: [
                                             Shadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.4),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.4),
                                               offset: const Offset(2, 3),
                                               blurRadius: 6,
                                             ),
                                             Shadow(
                                               color: const Color(0xFFEC4899)
-                                                  .withOpacity(0.5),
+                                                  .withValues(alpha: 0.5),
                                               offset: const Offset(-1, -1),
                                               blurRadius: 4,
                                             ),
@@ -210,7 +210,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                         child: Text(
                                           'ieldMate',
                                           style: TextStyle(
-                                            fontSize: 38,
+                                            fontSize: 36,
                                             fontWeight: FontWeight.w800,
                                             letterSpacing: 0.8,
                                             height: 0.9,
@@ -218,7 +218,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                             shadows: [
                                               Shadow(
                                                 color: Colors.black
-                                                    .withOpacity(0.3),
+                                                    .withValues(alpha: 0.3),
                                                 offset: const Offset(1, 2),
                                                 blurRadius: 4,
                                               ),
@@ -228,7 +228,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 6),
                                   // Creative subtitle badge with pulsing green dot
                                   Container(
                                     padding: const EdgeInsets.symmetric(
@@ -236,18 +236,20 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
                                         colors: [
-                                          Colors.white.withOpacity(0.25),
-                                          Colors.white.withOpacity(0.15),
+                                          Colors.white.withValues(alpha: 0.25),
+                                          Colors.white.withValues(alpha: 0.15),
                                         ],
                                       ),
                                       borderRadius: BorderRadius.circular(25),
                                       border: Border.all(
-                                        color: Colors.white.withOpacity(0.4),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.4),
                                         width: 1.5,
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.2),
+                                          color: Colors.black
+                                              .withValues(alpha: 0.2),
                                           blurRadius: 8,
                                           offset: const Offset(0, 2),
                                         ),
@@ -268,9 +270,9 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                                 shape: BoxShape.circle,
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: Colors.green
-                                                        .withOpacity(
-                                                      0.8 *
+                                                    color:
+                                                        Colors.green.withValues(
+                                                      alpha: 0.8 *
                                                           _pulseAnimation.value,
                                                     ),
                                                     blurRadius: 6 *
@@ -514,7 +516,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                 ),
                               ),
                               Text(
-                                'Made with ❤️',
+                                'Made with love',
                                 style: TextStyle(
                                   fontSize: 10,
                                   color: isDark
@@ -683,20 +685,20 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
           decoration: BoxDecoration(
             color: isSelected
                 ? (isDark
-                    ? Colors.green.withOpacity(0.2)
-                    : Colors.green.withOpacity(0.1))
+                    ? Colors.green.withValues(alpha: 0.2)
+                    : Colors.green.withValues(alpha: 0.1))
                 : (isDark ? Colors.grey[850] : Colors.grey[50]),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isSelected
-                  ? Colors.green.withOpacity(0.5)
+                  ? Colors.green.withValues(alpha: 0.5)
                   : (isDark ? Colors.grey[700]! : Colors.grey[200]!),
               width: isSelected ? 2 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Colors.green.withOpacity(0.2),
+                      color: Colors.green.withValues(alpha: 0.2),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -721,7 +723,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                   boxShadow: [
                     BoxShadow(
                       color: (isLocked ? Colors.grey[400]! : gradient.colors[0])
-                          .withOpacity(0.3),
+                          .withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -811,14 +813,14 @@ class _GeometricPatternPainter extends CustomPainter {
         canvas.drawCircle(
           Offset(x, y),
           20 + (i % 3) * 5,
-          paint..color = Colors.white.withOpacity(0.15),
+          paint..color = Colors.white.withValues(alpha: 0.15),
         );
       }
     }
 
     // Draw diagonal lines
     final linePaint = Paint()
-      ..color = Colors.white.withOpacity(0.1)
+      ..color = Colors.white.withValues(alpha: 0.1)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 

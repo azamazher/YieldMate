@@ -15,47 +15,47 @@ class DetectionService {
 
     // Validate output dimensions
     if (output.isEmpty || output[0].isEmpty) {
-      print("⚠️ Empty output from model");
+      print("Empty output from model");
       return [];
     }
 
     print(
-        "📊 Output dimensions: ${output.length} x ${output[0].length} x ${output[0][0].length}");
+        "Output dimensions: ${output.length} x ${output[0].length} x ${output[0][0].length}");
 
     // Check if output format matches YOLO detection format
     final firstDim = output[0].length;
     final secondDim = output[0][0].length;
 
-    print("📊 First dimension: $firstDim, Second dimension: $secondDim");
+    print("First dimension: $firstDim, Second dimension: $secondDim");
     print(
-        "📊 Expected: 12 (8 classes + 4 bbox) or 8400+ detections for 8 classes");
+        "Expected: 12 (8 classes + 4 bbox) or 8400+ detections for 8 classes");
 
     // Determine output format and transpose accordingly
     List<List<double>> transposedOutput;
 
     if (firstDim >= 7 && secondDim >= 100) {
       // Format: [1, 7, num_detections] - YOLO format
-      print("📊 Detected format: [batch, classes+4, detections]");
+      print("Detected format: [batch, classes+4, detections]");
       transposedOutput = List.generate(
           secondDim, (i) => List.generate(firstDim, (j) => output[0][j][i]));
     } else if (secondDim >= 7 && firstDim >= 100) {
       // Format: [1, num_detections, 7] - Already transposed
-      print("📊 Detected format: [batch, detections, classes+4]");
+      print("Detected format: [batch, detections, classes+4]");
       transposedOutput = output[0];
     } else {
       print(
-          "⚠️ Unexpected output dimensions. First: $firstDim, Second: $secondDim");
-      print("⚠️ This might be a classification model, not object detection");
+          "Unexpected output dimensions. First: $firstDim, Second: $secondDim");
+      print("This might be a classification model, not object detection");
       throw Exception(
           "Model output format doesn't match object detection format. "
           "Expected YOLO format [1, 7, N] or [1, N, 7], got [1, $firstDim, $secondDim]. "
           "This model might be a classification model, not object detection.");
     }
 
-    print("📊 Processing ${transposedOutput.length} detections");
+    print("Processing ${transposedOutput.length} detections");
     print(
-        "📊 Confidence threshold: $confThreshold, IoU threshold: $iouThreshold");
-    print("📊 Looking for ${labels.length} classes: ${labels.join(', ')}");
+        "Confidence threshold: $confThreshold, IoU threshold: $iouThreshold");
+    print("Looking for ${labels.length} classes: ${labels.join(', ')}");
 
     int processedCount = 0;
     int filteredCount = 0;
@@ -142,7 +142,7 @@ class DetectionService {
 
       if (processedCount <= 5 && score >= confThreshold) {
         print(
-            "   ✅ Valid detection $processedCount: class=${labels[classIndex]}, score=$score, maxProb=$maxProb");
+            "   Valid detection $processedCount: class=${labels[classIndex]}, score=$score, maxProb=$maxProb");
       }
 
       if (score < confThreshold) {
@@ -199,11 +199,11 @@ class DetectionService {
     }
 
     print(
-        "📊 Detections before NMS: ${bboxes.length} (processed: $processedCount, filtered: $filteredCount)");
+        "Detections before NMS: ${bboxes.length} (processed: $processedCount, filtered: $filteredCount)");
 
     final nmsIndices = nonMaxSuppression(bboxes, scores, iouThreshold);
 
-    print("📊 Detections after NMS: ${nmsIndices.length}");
+    print("Detections after NMS: ${nmsIndices.length}");
 
     final results = <Map<String, dynamic>>[];
     for (final index in nmsIndices) {

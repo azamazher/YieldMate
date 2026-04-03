@@ -206,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if (_useOnlineMode) {
         // Use backend server for detection
-        print("🌐 Using online mode (backend server)");
+        print("Using online mode (backend server)");
 
         // Check server health first
         final isServerHealthy = await _backendService.checkHealth();
@@ -226,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
         recognitions = await _backendService.detectFruits(_image!);
       } else {
         // Use offline TFLite model
-        print("📱 Using offline mode (TFLite)");
+        print("Using offline mode (TFLite)");
 
         // Load model bytes in main thread (before isolate)
         final ByteData modelData =
@@ -283,8 +283,8 @@ class _MyHomePageState extends State<MyHomePage> {
         _saveDetectionToCalendar(recognitions);
       }
     } catch (e, stackTrace) {
-      print("❌ Error running detection: $e");
-      print("❌ Stack trace: $stackTrace");
+      print("Error running detection: $e");
+      print("Stack trace: $stackTrace");
       if (!mounted) return;
 
       // Simple error messages
@@ -393,9 +393,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // Save to storage
       await StorageService.saveDetection(record);
-      print('✅ Detection saved to calendar: $fruitCounts');
+      print('Detection saved to calendar: $fruitCounts');
     } catch (e) {
-      print('⚠️ Error saving detection to calendar: $e');
+      print('Error saving detection to calendar: $e');
       // Don't show error to user - it's not critical
     }
   }

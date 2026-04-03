@@ -127,7 +127,7 @@ class AboutPage extends StatelessWidget {
             
             // Footer
             Text(
-              'Made with ❤️ for farmers and agriculture enthusiasts',
+              'Made with love for farmers and agriculture enthusiasts',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
